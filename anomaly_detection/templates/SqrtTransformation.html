@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %} Square Root Transformation {%endblock title%}
+
+{%block body%}
+
+
+{% for histogram in hist_list %}
+   {% for elem in histogram %}
+       {{  elem|safe  }}
+   {% endfor %}
+{% endfor %}
+
+
+{%endblock body%}

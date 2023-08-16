@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Anomaly Detection Algorithm {%endblock title%}
+
+<h1> Upload Your .csv File to Get Results Of The Anomaly Detection Algorithm</h1>
+
+{%block body%}
+
+<h1 style="text-align:center">Normal elements: {{normal_stats}}</h1>
+<h1 style="text-align:center">Anomalous elements: {{anomaly_stats}}</h1>
+
+
+{%endblock body%}
