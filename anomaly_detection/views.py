@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from anomaly_detection.utils import apply_normality_test
+from anomaly_detection.utils import pdf_product
 
 #Import necessary libraries to process uploaded file
 import pandas as pd
@@ -90,33 +90,21 @@ def log_transformation(request):
     
 def algorithm_implementation(request):
     context={}
-    epsilon=-0.2
     test_file = request.FILES.get(u'csv_file') #request.FILES has the file contents to be read. the get method gets the contents.
     if test_file: #Check if file is valid.
            df = pd.read_csv(test_file) #Read using pandas
            df=df.iloc[:,:-1]
            train_df,test_df=train_test_split(df,test_size=0.2,random_state=42,shuffle=True)
            train_features_mean=train_df.mean().to_numpy()
-           train_features_variance=train_df.var().to_numpy()
            train_features_std=train_df.std().to_numpy()
-           intermediate_computation=1/(np.sqrt(2*np.pi)*train_features_std)
 
            train_df_matrix=train_df.to_numpy()
-           rows,columns=train_df_matrix.shape
-           anomaly_list=[]
-           normal_list=[]
-
-           for i in range(rows):
-               curr_example=train_df_matrix[i]
-               intermediate_computation2=np.exp((curr_example-train_features_mean)**2/(2*train_features_variance))
-               result=intermediate_computation*intermediate_computation2
-               result_number=np.prod(result)
-               if result_number > epsilon:
-                   normal_list.append(result_number)
-                   context['normal_stats']=len(normal_list)+0
-    
-               else:
-                   anomaly_list.append(result_number)
-                   context['anamoly_stats']=len(anomaly_list)+0
-         
+           test_df_matrix=test_df.to_numpy()
+           
+           train_normal_samples,train_anomalous_samples=pdf_product(train_df_matrix,train_features_mean,train_features_std)
+           test_normal_samples,test_anomalous_samples=pdf_product(test_df_matrix,train_features_mean,train_features_std)
+           context['train_normal_samples']=train_normal_samples
+           context['train_anomalous_samples']=train_anomalous_samples
+           context['test_normal_samples']=test_normal_samples
+           context['test_anomalous_samples']=test_anomalous_samples
     return render(request,'Algorithm.html',context)    
